@@ -1,3 +1,5 @@
+import time
+
 def create_dict(destination_range_start, source_range_start, range_length):
     dict = {}
     for i in range(range_length):
@@ -8,9 +10,13 @@ def merge(dict1, dict2):
     res = dict1 | dict2
     return res
 
-path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 5\\input.txt"
-#path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 5\\input_test.txt"
+def get_val_if_key_exist(dic, i):
+    return dic[str(i)] if str(i) in dic else i
 
+path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 5\\input.txt"
+# path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 5\\input_test.txt"
+
+start_time = time.time()
 
 indexes_converter = []
 data = []
@@ -81,22 +87,39 @@ for i in range(indexes_converter[6] + 1, len(data)):
 
 locations = []
 for seed in seeds:
-    soil = dict_seed_to_soil.get(seed,seed)
-    fertilizer = dict_soil_to_fertilizer.get(soil,soil)
-    water = dict_fertilizer_to_water.get(fertilizer,fertilizer)
-    print(water)
-    light = dict_water_to_light.get(water,water)
-    temperature = dict_light_to_temperature.get(light,light)
-    humidity = dict_temperature_to_humidity.get(temperature,temperature)
-    location = dict_humidity_to_location.get(humidity,humidity)
+    # soil = dict_seed_to_soil.get(str(seed),seed)
+    # dict_seed_to_soil.get(str(seed),seed)
+    # fertilizer = dict_soil_to_fertilizer.get(str(soil),soil)
+    # water = dict_fertilizer_to_water.get(str(fertilizer),fertilizer)
+    # light = dict_water_to_light.get(str(water),water)
+    # temperature = dict_light_to_temperature.get(str(light),light)
+    # humidity = dict_temperature_to_humidity.get(str(temperature),temperature)
+    # location = dict_humidity_to_location.get(str(humidity),humidity)
+    # locations.append(location)
+    # print(location)
+
+    soil = get_val_if_key_exist(dict_seed_to_soil,seed)
+    fertilizer = get_val_if_key_exist(dict_soil_to_fertilizer,soil)
+    water = get_val_if_key_exist(dict_fertilizer_to_water,fertilizer)
+    light = get_val_if_key_exist(dict_water_to_light,water)
+    temperature = get_val_if_key_exist(dict_light_to_temperature,light)
+    humidity = get_val_if_key_exist(dict_temperature_to_humidity,temperature)
+    location = get_val_if_key_exist(dict_humidity_to_location,humidity)
     locations.append(location)
+    print(location)
 
 locations = sorted(locations)
-print(locations)
+print(locations[0])
+
+end_time = time.time()
+
+execution_time = end_time - start_time
+print(f"Le programme a pris {execution_time} secondes.")
+
 
 """     for line in data:
-        print(line)
+        #print(line)
         data.append(line)
-    print(data) """
+    #print(data) """
 
 #['seed-to-soil','soil-to-fertilizer','fertilizer-to-water','water-to-light','light-to-temperature','temperature-to-humidity','humidity-to-location']
