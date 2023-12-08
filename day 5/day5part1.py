@@ -1,17 +1,28 @@
 import time
 
-def create_dict(destination_range_start, source_range_start, range_length):
-    dict = {}
-    for i in range(range_length):
-        dict = dict | {str(source_range_start + i): (destination_range_start + i)}
-    return dict
+def is_key_in_map(k, line):
+    # destination_range_start = int(line[0])
+    source_range_start = int(line[1])
+    range_length = int(line[2])
+    return k >= source_range_start and k < source_range_start + range_length
 
-def merge(dict1, dict2):
-    res = dict1 | dict2
-    return res
+def get_key_value_in_map(k, map):
+    for line in map:
+        if is_key_in_map(k, line):
+            destination_range_start = line[0]
+            source_range_start = line[1]
+            # range_length = line[2]
+            delta = k - source_range_start
+            return destination_range_start + delta
+        
+    return k
 
-def get_val_if_key_exist(dic, i):
-    return dic[str(i)] if str(i) in dic else i
+def get_parameters_from_line(line):
+    temp = line.split()
+    destination_range_start = int(temp[0])
+    source_range_start = int(temp[1])
+    range_length = int(temp[2])
+    return [destination_range_start, source_range_start, range_length]
 
 path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 5\\input.txt"
 # path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 5\\input_test.txt"
@@ -28,98 +39,64 @@ with open(path) as file:
             indexes_converter.append(i)
 
 seeds = data[0].split()[1:]
+soils = []
+fertilizers = []
+waters = []
+lights = []
+temperatures = []
+humiditys = []
+locations = []
 
-dict_seed_to_soil = {}
+seed_to_soil_map = []
 for i in range(indexes_converter[0] + 1, indexes_converter[1] - 1):
-    temp = data[i].split()
-    destination_range_start = int(temp[0])
-    source_range_start = int(temp[1])
-    range_length = int(temp[2])
-    dict_seed_to_soil = dict_seed_to_soil | create_dict(destination_range_start, source_range_start, range_length)
+    seed_to_soil_map.append(get_parameters_from_line(data[i]))
 
-dict_soil_to_fertilizer = {}
+soil_to_fertilizer_map = []
 for i in range(indexes_converter[1] + 1, indexes_converter[2] - 1):
-    temp = data[i].split()
-    destination_range_start = int(temp[0])
-    source_range_start = int(temp[1])
-    range_length = int(temp[2])
-    dict_soil_to_fertilizer = dict_soil_to_fertilizer | create_dict(destination_range_start, source_range_start, range_length)
+    soil_to_fertilizer_map.append(get_parameters_from_line(data[i]))
 
-dict_fertilizer_to_water = {}
+fertilizer_to_water_map = []
 for i in range(indexes_converter[2] + 1, indexes_converter[3] - 1):
-    temp = data[i].split()
-    destination_range_start = int(temp[0])
-    source_range_start = int(temp[1])
-    range_length = int(temp[2])
-    dict_fertilizer_to_water = dict_fertilizer_to_water | create_dict(destination_range_start, source_range_start, range_length)
+    fertilizer_to_water_map.append(get_parameters_from_line(data[i]))
 
-dict_water_to_light = {}
+water_to_light_map = []
 for i in range(indexes_converter[3] + 1, indexes_converter[4] - 1):
-    temp = data[i].split()
-    destination_range_start = int(temp[0])
-    source_range_start = int(temp[1])
-    range_length = int(temp[2])
-    dict_water_to_light = dict_water_to_light | create_dict(destination_range_start, source_range_start, range_length)
+    water_to_light_map.append(get_parameters_from_line(data[i]))
 
-dict_light_to_temperature = {}
+light_to_temperature_map = []
 for i in range(indexes_converter[4] + 1, indexes_converter[5] - 1):
-    temp = data[i].split()
-    destination_range_start = int(temp[0])
-    source_range_start = int(temp[1])
-    range_length = int(temp[2])
-    dict_light_to_temperature = dict_light_to_temperature | create_dict(destination_range_start, source_range_start, range_length)
+    light_to_temperature_map.append(get_parameters_from_line(data[i]))
 
-dict_temperature_to_humidity = {}
+temperature_to_humidity_map = []
 for i in range(indexes_converter[5] + 1, indexes_converter[6] - 1):
-    temp = data[i].split()
-    destination_range_start = int(temp[0])
-    source_range_start = int(temp[1])
-    range_length = int(temp[2])
-    dict_temperature_to_humidity = dict_temperature_to_humidity | create_dict(destination_range_start, source_range_start, range_length)
-
-dict_humidity_to_location = {}
+    temperature_to_humidity_map.append(get_parameters_from_line(data[i]))
+   
+humidity_to_location_map = []
 for i in range(indexes_converter[6] + 1, len(data)):
-    temp = data[i].split()
-    destination_range_start = int(temp[0])
-    source_range_start = int(temp[1])
-    range_length = int(temp[2])
-    dict_humidity_to_location = dict_humidity_to_location | create_dict(destination_range_start, source_range_start, range_length)
+    humidity_to_location_map.append(get_parameters_from_line(data[i]))
 
 locations = []
-for seed in seeds:
-    # soil = dict_seed_to_soil.get(str(seed),seed)
-    # dict_seed_to_soil.get(str(seed),seed)
-    # fertilizer = dict_soil_to_fertilizer.get(str(soil),soil)
-    # water = dict_fertilizer_to_water.get(str(fertilizer),fertilizer)
-    # light = dict_water_to_light.get(str(water),water)
-    # temperature = dict_light_to_temperature.get(str(light),light)
-    # humidity = dict_temperature_to_humidity.get(str(temperature),temperature)
-    # location = dict_humidity_to_location.get(str(humidity),humidity)
-    # locations.append(location)
-    # print(location)
+for i in range(len(seeds)):
+    soils.append(get_key_value_in_map(int(seeds[i]), seed_to_soil_map))
+    fertilizers.append(get_key_value_in_map(int(soils[i]), soil_to_fertilizer_map))
+    waters.append(get_key_value_in_map(int(fertilizers[i]), fertilizer_to_water_map))
+    lights.append(get_key_value_in_map(int(waters[i]), water_to_light_map))
+    temperatures.append(get_key_value_in_map(int(lights[i]), light_to_temperature_map))
+    humiditys.append(get_key_value_in_map(int(temperatures[i]), temperature_to_humidity_map))
+    locations.append(get_key_value_in_map(int(humiditys[i]), humidity_to_location_map))
 
-    soil = get_val_if_key_exist(dict_seed_to_soil,seed)
-    fertilizer = get_val_if_key_exist(dict_soil_to_fertilizer,soil)
-    water = get_val_if_key_exist(dict_fertilizer_to_water,fertilizer)
-    light = get_val_if_key_exist(dict_water_to_light,water)
-    temperature = get_val_if_key_exist(dict_light_to_temperature,light)
-    humidity = get_val_if_key_exist(dict_temperature_to_humidity,temperature)
-    location = get_val_if_key_exist(dict_humidity_to_location,humidity)
-    locations.append(location)
-    print(location)
+    # print(locations[i])
 
+print(soils)
+print(fertilizers)
+print(waters)
+print(lights)
+print(temperatures)
+print(humiditys)
 locations = sorted(locations)
 print(locations[0])
 
 end_time = time.time()
 
 execution_time = end_time - start_time
-print(f"Le programme a pris {execution_time} secondes.")
-
-
-"""     for line in data:
-        #print(line)
-        data.append(line)
-    #print(data) """
-
-#['seed-to-soil','soil-to-fertilizer','fertilizer-to-water','water-to-light','light-to-temperature','temperature-to-humidity','humidity-to-location']
+print(f"Execution time: {execution_time} seconds.")
