@@ -1,38 +1,57 @@
 import time
 
-def hand_ranking(s):
+def hand_ranking(s, joker_rule_active):
     '''Evaluate the ranking of a poker hand represented by a string of 5 characters.
-    
+
     Args:
         s (str): A string containing 5 characters, representing cards.
                 Each character can be one of the following: A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2.
-    
-    Returns:
-        int: The ranking of the poker hand, with the following possible values:
-             6 - Five of a kind - 1 occ de 5 - 1
-             5 - Four of a kind - 1 occ de 4 - 1 et 1 de 1 - 2
-             4 - Full house - 1 occ de 3 et 1 de 2 - 2
-             3 - Three of a kind - 1 occ de 3 et 1 de 1 et 1 de 1 - 3
-             2 - Two pairs - 2 occ de 2 et une de 1 - 3
-             1 - One pair - 1 occ de 2 et 3 de 1 - 4
-             0 - High card - 5 occ de 1 - 5
-    '''
-    
-    occurences = {}
-    for char in s:
-        if char in occurences:
-            occurences[char] += 1
-        else:
-            occurences[char] = 1
+        joker_rule_active (bool): A boolean indicating whether the "Joker Rule" is active.
+                                  If True, J cards are considered wildcards and can act as any card to form the strongest hand.
 
-    diff_cards = len(occurences)
+    Returns:
+        int: The ranking of the poker hand, considering the optional Joker Rule.
+             Possible values:
+             6 - Five of a kind - 1 occurrence of 5 - 1
+             5 - Four of a kind - 1 occurrence of 4 - 1 and 1 occurrence of 1 - 2
+             4 - Full house - 1 occurrence of 3 and 1 occurrence of 2 - 2
+             3 - Three of a kind - 1 occurrence of 3 and 1 occurrence of 1 and 1 occurrence of 1 - 3
+             2 - Two pairs - 2 occurrences of 2 and 1 occurrence of 1 - 3
+             1 - One pair - 1 occurrence of 2 and 3 occurrences of 1 - 4
+             0 - High card - 5 occurrences of 1 - 5
+
+    Note:
+        If the Joker Rule is active (joker_rule_active=True), J cards are treated as wildcards, potentially enhancing the hand's strength.
+        The J cards can act as any card necessary to form the strongest hand. However, for tie-breaking purposes, J is always considered weaker than other non-wildcard cards.
+    '''
+
+    occurrences = {}
+    for char in s:
+        # Increment the count of the current character in the dictionary
+        occurrences[char] = occurrences.get(char, 0) + 1
+    
+    # Check if the joker rule is active
+    if joker_rule_active:
+        number_of_J = s.count('J')
+
+        if 'J' in occurrences:
+            del occurrences['J']
+
+            # Check if occurrences is now empty, and return 6 if true (s was 'JJJJJ')
+            if occurrences == {}:
+                return 6
+        
+        # Increase the count of the most frequent character by the number_of_J (considering joker rule)
+        occurrences[max(occurrences, key=occurrences.get)] += number_of_J
+
+    diff_cards = len(occurrences)
     if diff_cards == 1:
         return 6
-    elif diff_cards == 2 and max(occurences.values()) == 4:
+    elif diff_cards == 2 and max(occurrences.values()) == 4:
         return 5
     elif diff_cards == 2:
         return 4
-    elif diff_cards == 3 and max(occurences.values()) == 3:
+    elif diff_cards == 3 and max(occurrences.values()) == 3:
         return 3
     elif diff_cards == 3:
         return 2
@@ -41,62 +60,32 @@ def hand_ranking(s):
     else:
         return 0
 
-def change_one_char(s, ss, index):
-    return s[:index] + ss + s[index + 1:]
-
-def get_indexes_of_J(s):
-    indexes_of_J = []
-    for index, char in enumerate(s):
-        if char == 'J':
-            indexes_of_J.append(index)
-    return indexes_of_J
-
-def all_jokers_possibilities_helper(s, cards, current_combination, index, list_of_combinaisons):
-    if index == len(current_combination):
-        list_of_combinaisons.append(current_combination)
-        return
-
-    for card in cards:
-        new_combination = change_one_char(current_combination, card, index)
-        all_jokers_possibilities_helper(s, cards, new_combination, index + 1, list_of_combinaisons)
-
-def all_jokers_possibilities(s):
-    cards = 'AKQT98765432'
-    list_of_possibles_hands = []
-    indexes_of_J = get_indexes_of_J(s)
-    s = s.replace('J', 'K')
-
-    if indexes_of_J == []:
-        return [s]
-
-    for index, index_of_J in enumerate(indexes_of_J):
-        for card in cards:
-            current_combination = change_one_char(s, card, index_of_J)
-            list_of_possibles_hands.append(current_combination)
-            if index != (len(indexes_of_J) - 1):
-                all_jokers_possibilities_helper(s, cards, current_combination, indexes_of_J[index + 1], list_of_possibles_hands)
-    return list_of_possibles_hands
-
-def give_global_list_of_hands_ranking(hands):
-    best_ranking = hand_ranking(hands[0])
-    
-    for hand in hands:
-        temp_hand_ranking = hand_ranking(hand)
-        if temp_hand_ranking > best_ranking:
-            best_ranking = temp_hand_ranking
-    
-    return best_ranking
-
-
 def give_card_ranking(char, joker_value):
-    '''Assign a numerical value to a playing card character.'''
+    '''Assign a numerical value to a playing card character.
+    
+    Args:
+        char (str): A character representing a playing card (A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, 2).
+        joker_value (int): The value assigned to the Joker card, influencing its ranking.
+
+    Returns:
+        int: The numerical value assigned to the playing card character, considering the joker_value.
+    '''
+
     cards_values = {'A' : 14, 'K' : 13, 'Q' : 12, 'J' : joker_value, 'T' : 10, '9' : 9, '8' : 8, '7' : 7, '6' : 6, '5' : 5, '4' : 4, '3' : 3, '2' : 2}
     return cards_values.get(char)
 
 def give_hand_ranking(s, joker_value):
+    '''Assign a numeric value to the strength of a poker hand based on individual card values.
     
-    '''Assign a numeric value to the strength of a poker hand by prioritizing the first character, then the second, and so on.
-'''
+    Args:
+        s (str): A string containing 5 characters, representing poker cards in a hand.
+                Each character can be one of the following: A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2.
+        joker_value (int): The value assigned to the Joker card, influencing its ranking.
+
+    Returns:
+        int: The numeric value representing the strength of the poker hand.
+    '''
+
     rst = 0
     
     for i in range(0, len(s)):
@@ -105,22 +94,35 @@ def give_hand_ranking(s, joker_value):
 
     return rst
 
-def give_global_hand_ranking(s, joker_value):
-    '''Assign the total strength value to a poker hand, taking into account both the suit and individual card values.'''
+def give_global_hand_ranking(s, joker_value, joker_rule_active):
+    '''Assign the total strength value to a poker hand, considering both the individual card values and potential Jokers.
+    
+    Args:
+        s (str): A string containing 5 characters, representing poker cards in a hand.
+                Each character can be one of the following: A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2.
+        joker_value (int): The value assigned to the Joker card, influencing its ranking.
+        joker_rule_active (bool): A boolean indicating whether the "Joker rules" are in effect.
 
-    return hand_ranking(s) * 10**10 + give_hand_ranking(s, joker_value)
-  
-def give_global_hand_ranking_with_jokers(s, joker_value):
-    '''Assign the total strength value to a poker hand, taking into account both the suit and individual card values.'''
-    list_of_possibilities = all_jokers_possibilities(s)
-    best_ranking = give_global_list_of_hands_ranking(list_of_possibilities)
+    Returns:
+        int: The total strength value of the poker hand, accounting for both card values and Jokers.
+    '''
 
-    return best_ranking * 10**10 + give_hand_ranking(s, joker_value)
+    return hand_ranking(s, joker_rule_active) * 10**10 + give_hand_ranking(s, joker_value)
 
 def main():
+    """
+    Solve the Day 7 challenge of Advent of Code 2023.
 
+    This function reads data from an input file, calculates poker hand rankings based on the rules specified,
+    and then calculates the total winnings for two scenarios: one without Joker rules (Part 1) and one with Joker rules (Part 2).
+
+    Returns:
+        None
+    """
+    
+    # Define the path to the input file
     path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 7\\input.txt"
-    # path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 7\\input_test_test.txt"
+    # path = "C:\\Users\\duche\\Desktop\\Advent of Code 2023\\day 7\\input_test.txt"
 
     # Part 1
     start_time_part1 = time.time()
@@ -129,14 +131,17 @@ def main():
     result = 0
     strengths = []
     dictionnary_strenght_bets = {}
+
+    # Read data from the file and calculate hand rankings without Joker rules
     with open(path) as file:
         data = file.readlines()
         for line in data:
             line = line.split()
-            strength = give_global_hand_ranking(line[0], joker_value)
+            strength = give_global_hand_ranking(line[0], joker_value, False)
             strengths.append(strength)
             dictionnary_strenght_bets[str(strength)] = int(line[1])
-    
+
+    # Sort hand strengths and calculate the result
     strengths = sorted(strengths)
     for index, strength in enumerate(strengths):
         result += (index + 1) * dictionnary_strenght_bets[str(strength)]
@@ -155,15 +160,16 @@ def main():
     strengths = []
     dictionnary_strenght_bets = {}
 
-    
+    # Read data from the file and calculate hand rankings with Joker rules
     with open(path) as file:
         data = file.readlines()
         for line in data:
             line = line.split()
-            strength = give_global_hand_ranking_with_jokers(line[0], joker_value)
+            strength = give_global_hand_ranking(line[0], joker_value, True)
             strengths.append(strength)
             dictionnary_strenght_bets[str(strength)] = int(line[1])
     
+    # Sort hand strengths and calculate the result for Part 2
     strengths = sorted(strengths)
     for index, strength in enumerate(strengths):
         result += (index + 1) * dictionnary_strenght_bets[str(strength)]
