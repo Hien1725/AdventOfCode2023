@@ -61,10 +61,9 @@ def create_all_sequences(history, is_in_the_future):
         list: List of sequences representing differences.
     """
     sequences = [history]
-    print(sequences)
+
     if not is_in_the_future:
-        sequences.reverse()
-        print(sequences)
+        sequences[0].reverse()
     current_sequence = []
     
     while not is_all_zeros(sequences[-1]):
@@ -104,11 +103,10 @@ def main():
     # Define the path to the input file
     folder_path = set_working_directory()
     input_name = "input.txt"
-    input_name = "input_test.txt"
+    # input_name = "input_test.txt"
 
     path = folder_path + "\\" + input_name
-    print(path)
-    
+       
     # Part 1
     result1 = 0
     start_time_part1 = time.time()
