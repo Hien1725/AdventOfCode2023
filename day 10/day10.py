@@ -65,7 +65,28 @@ def next_pipe(char, x, y):
         else:
             return (1,0)
 
-def loop_searcher():
+def give_two_dir(char):
+    directions = []
+    if char in 'F-L':
+        directions.append((1,0))
+    if char in 'F|J7':
+        directions.append((0,1))
+    if char in '|JL':
+        directions.append((-1,0))
+    if char in '-J7':
+        directions.append((0,-1))
+    return directions
+
+def begin_loop(matrix, char, x, y):
+    directions = give_two_dir(char)
+    direction_1 = directions[0]
+    direction_2 = directions[1]
+    dx1, dy1 = direction_1
+    dx2, dy2 = direction_2
+    (x1, y1, char1) , (x2, y2, char2) = (matrix[x + dx1][y + dy1], matrix[x + dx2][y + dy2])
+
+
+def loop_searcher(x, y, char):
     # en partant d'un point, vérifier les deux suivants, puis les deux suivants etc
     # arrêter la boucle
     #### si la pipe suivant ne présente pas d'entrée commune avec la sortie du précédent (. compris)
@@ -112,8 +133,18 @@ def main():
     loop_found = False
     test_while = 0
     
-    while loop_found == False and test_while < 0:
+    for i in range(len(matrix_data_pipes[0])):
+        for j in range(len(matrix_data_pipes[0])):
+            for is_loop, length in loop_searcher(i,j):
+                if is_loop:
+                    print(length)
+                    break
+                
 
+            
+            
+            while loop_found == False and test_while < 0:
+        
         test_while += 1
     end_time_part1 = time.time()
     execution_duration_part1 = end_time_part1 - start_time_part1
