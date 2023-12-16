@@ -44,7 +44,7 @@ def set_working_directory():
     """
     return find_horizontal_mirror(transpose_a_pattern(pattern))
 
-def transpose_the_data(data):
+def transpose_table(data):
     """
     Transpose a pattern represented by a list of strings.
 
@@ -64,15 +64,25 @@ def transpose_the_data(data):
         rslt.append(''.join(temp))
     return rslt       
 
-def find_all(s,sub):
+def find_indices_of_character(s,sub):
     return [index for index, char in enumerate(s) if char == sub]
 
-def rearrange(line):
-    indexes = find_all(line, '#')
+def rearrange_line_by_rock_direction(line, bol):
+    """
+    rearrange_line_by_rock_direction a line by moving rounded rocks according to the specified direction.
+
+    Args:
+        line (str): The input line.
+        bol (bool): True for north direction, TBD for others.
+
+    Returns:
+        str: The rearrange_line_by_rock_directiond line.
+    """
+    indexes = find_indices_of_character(line, '#')
     rslt = []
     line_listed = line.split('#')
     for s in line_listed:
-        sorted_str = sorted(s, reverse=True)
+        sorted_str = sorted(s, reverse=bol)
         rslt += sorted_str
     
     for index in indexes:
@@ -81,12 +91,39 @@ def rearrange(line):
     return ''.join(rslt)
 
 def give_value(s):
+    """
+    Calculate the total load caused by rounded rocks in a line.
+
+    Args:
+        s (str): The input line.
+
+    Returns:
+        int: The total load caused by rounded rocks in the line.
+    """
     rslt = 0
     length = len(s)
-    indexes = find_all(s,'O')
+    indexes = find_indices_of_character(s,'O')
     for index in indexes:
         rslt += length - index
 
+    return rslt
+
+def tilt_table_in_direction(data, dir = 'north'):
+    """
+    Tilt the table in the specified direction.
+
+    Args:
+        data (list): List of strings representing the input data.
+        direction (str): The direction to tilt the table, 'north' for now.
+
+    Returns:
+        list: List of strings representing the tilted table.
+    """
+    data = transpose_table(data)
+    rslt = []
+    for line in data:
+        line = rearrange_line_by_rock_direction(line, True)
+        rslt.append(line)
     return rslt
 
 def main():
@@ -107,16 +144,14 @@ def main():
     path = folder_path + "\\" + input_name
        
     # Part 1
-    result1 = 0
     start_time_part1 = time.time()
+    result1 = 0
 
     data = read_data(path)
-    data = transpose_the_data(data)
+    data = tilt_table_in_direction(data)
 
     for line in data:
-        print(rearrange(line))
-        result1 += give_value(rearrange(line))
-        
+        result1 += give_value(line)
 
     end_time_part1 = time.time()
     execution_duration_part1 = end_time_part1 - start_time_part1
@@ -125,8 +160,19 @@ def main():
     print(f"Part 1 took {execution_duration_part1} seconds to run.")
 
     # Part 2
-    # result2 = 0
-    # print("Part 2:", result2)
+    start_time_part2 = time.time()
+    result2 = 0
+
+    data = read_data(path)
+    data = tilt_table_in_direction(data, 'north')
+
+    for line in data:
+        result1 += give_value(line)
+
+    end_time_part2 = time.time()
+    execution_duration_part2 = end_time_part2 - start_time_part2
+    print("Part 2:", result2)
+    print(f"Part 2 took {execution_duration_part2} seconds to run.")
 
 if __name__ == "__main__":
     main()
