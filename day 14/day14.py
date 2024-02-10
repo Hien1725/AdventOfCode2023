@@ -119,10 +119,16 @@ def tilt_table_in_direction(data, dir = 'north'):
     Returns:
         list: List of strings representing the tilted table.
     """
-    data = transpose_table(data)
     rslt = []
+    bol = True
+    if dir == 'north' or 'south':
+        data = transpose_table(data)
+    
+    if dir == 'south' or 'east':
+        bol = True
+
     for line in data:
-        line = rearrange_line_by_rock_direction(line, True)
+        line = rearrange_line_by_rock_direction(line, bol)
         rslt.append(line)
     return rslt
 
@@ -162,9 +168,16 @@ def main():
     # Part 2
     start_time_part2 = time.time()
     result2 = 0
-
+    number_of_cycles = 1000000000
+    number_of_turns = int(number_of_cycles / 4)
     data = read_data(path)
-    data = tilt_table_in_direction(data, 'north')
+
+    for i in range(number_of_turns):
+        print(i)
+        data = tilt_table_in_direction(data, 'north')
+        data = tilt_table_in_direction(data, 'west')
+        data = tilt_table_in_direction(data, 'south')
+        data = tilt_table_in_direction(data, 'east')
 
     for line in data:
         result1 += give_value(line)
